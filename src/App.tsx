@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useChatGPTMonitor } from './hooks/useChatGPTMonitor';
+import { useDraggable } from './hooks/useDraggable';
 
 const App: React.FC = () => {
   const { userMessages, scrollToMessage } = useChatGPTMonitor();
+  const { position, onMouseDown, isDragging } = useDraggable();
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleOpen = () => setIsOpen(!isOpen);
@@ -10,17 +12,23 @@ const App: React.FC = () => {
   const messageEntries = Object.entries(userMessages);
 
   return (
-    <div>
+    <div
+      style={{
+        transform: `translate(${position.x}px, ${position.y}px)`,
+        cursor: isDragging ? 'grabbing' : 'auto'
+      }}
+    >
       {!isOpen && (
         <button
           onClick={toggleOpen}
+          onMouseDown={onMouseDown}
           style={{
             padding: '8px 16px',
             backgroundColor: 'black',
             color: 'white',
             border: 'none',
             borderRadius: '5px',
-            cursor: 'pointer',
+            cursor: isDragging ? 'grabbing' : 'pointer',
             fontSize: '14px',
             boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
           }}
@@ -45,7 +53,18 @@ const App: React.FC = () => {
             position: 'relative'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingBottom: '5px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+          <div
+            onMouseDown={onMouseDown}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '10px',
+              paddingBottom: '5px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+              cursor: isDragging ? 'grabbing' : 'move'
+            }}
+          >
             <span style={{ fontWeight: 600, fontSize: '14px' }}>User Messages</span>
             <button
               onClick={toggleOpen}
