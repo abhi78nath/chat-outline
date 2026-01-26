@@ -32,7 +32,7 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "src/scripts/inject.ts"
+                "src/scripts/inject.js"
             ],
             "matches": [
                 "https://chatgpt.com/*"

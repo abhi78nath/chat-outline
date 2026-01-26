@@ -10,7 +10,13 @@ export const useChatGPTMonitor = () => {
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            if (event.source !== window || event.data?.type !== 'CHAT_API_RESPONSE') return;
+            if (event.source !== window) return;
+
+            if (event.data?.type === 'CHAT_API_RESPONSE') {
+                console.log('[AI Chat TOC] Hook received CHAT_API_RESPONSE', event.data);
+            } else {
+                return;
+            }
 
             const { requestData, responseData } = event.data;
 

@@ -4,7 +4,7 @@ import App from './App'
 
 function injectScript() {
     const script = document.createElement('script');
-    script.src = chrome.runtime.getURL('src/scripts/inject.ts');
+    script.src = chrome.runtime.getURL('src/scripts/inject.js');
     (document.head || document.documentElement).appendChild(script);
     script.onload = () => script.remove();
 }

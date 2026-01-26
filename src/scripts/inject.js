@@ -2,14 +2,18 @@
 (function () {
     const originalFetch = window.fetch;
 
-    const apiPattern = /^https:\/\/chatgpt\.com\/backend-api(?:\/[^\/]*)?\/conversation(?:\/[0-9a-f-]+)?$/;
+    // Inclusive pattern for both chatgpt.com and chat.openai.com
+    const apiPattern = /https:\/\/(?:chatgpt\.com|chat\.openai\.com)\/backend-api(?:\/[^\/]*)?\/conversation(?:\/[0-9a-f-]+)?$/;
 
-    window.fetch = async function (...args: any[]) {
+    window.fetch = async function (...args) {
         const [resource, config] = args;
         const url = resource instanceof Request ? resource.url : resource;
         const method = resource instanceof Request ? resource.method : (config?.method || 'GET');
 
-        let requestData: any = null;
+        // Log all intercepted fetch calls for debugging
+        console.log('[AI Chat TOC] Intercepted Fetch:', method, url);
+
+        let requestData = null;
         if (resource instanceof Request) {
             try {
                 const clonedRequest = resource.clone();
@@ -22,7 +26,7 @@
                     }
                 }
             } catch (e) {
-                console.error('Error reading request body:', e);
+                console.error('[AI Chat TOC] Error reading request body:', e);
             }
         } else if (config && config.body) {
             try {
@@ -41,9 +45,12 @@
         }
 
         const isChatApi = apiPattern.test(url);
+        if (isChatApi) {
+            console.log('[AI Chat TOC] Matched ChatGPT API URL!');
+        }
 
         try {
-            const response = await originalFetch.apply(this, args as [RequestInfo | URL, RequestInit | undefined]);
+            const response = await originalFetch.apply(this, args);
             if (isChatApi) {
                 const clone = response.clone();
                 clone.text().then(body => {
@@ -54,6 +61,7 @@
                         responseData = body;
                     }
 
+                    console.log('[AI Chat TOC] Sending CHAT_API_RESPONSE to Content Script');
                     // Notify the content script
                     window.postMessage({
                         type: 'CHAT_API_RESPONSE',
@@ -63,7 +71,7 @@
                         responseData
                     }, '*');
                 }).catch(err => {
-                    console.error('Error reading response:', err.message);
+                    console.error('[AI Chat TOC] Error reading response:', err.message);
                 });
             }
 
@@ -72,4 +80,5 @@
             throw error;
         }
     };
+    console.log('[AI Chat TOC] Fetch Interceptor Injected Successfully');
 })();
