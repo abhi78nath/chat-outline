@@ -3,11 +3,52 @@ import { useChatGPTMonitor } from './hooks/useChatGPTMonitor';
 import { useDraggable } from './hooks/useDraggable';
 
 const App: React.FC = () => {
-  const { userMessages, scrollToMessage } = useChatGPTMonitor();
+  const { userMessages, scrollToMessage, conversationContext } = useChatGPTMonitor();
   const { position, onMouseDown, isDragging } = useDraggable();
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleOpen = () => setIsOpen(!isOpen);
+
+  const handleSummarize = () => {
+    const promptText = `Summarize the following conversation into a concise context snapshot.
+
+Rules:
+- User messages define intent and questions
+- Assistant messages define conclusions and decisions
+- Focus on goals, constraints, and current state
+- Use bullet points only
+- Max 150 words
+`;
+
+    const editor = document.getElementById("prompt-textarea") as HTMLDivElement | null;
+
+    if (!editor) {
+      alert("ChatGPT input field not found.");
+      return;
+    }
+
+    editor.focus();
+
+    // Clear existing content
+    document.execCommand("selectAll", false);
+    document.execCommand("delete", false);
+
+    // Insert text as if user typed it
+    document.execCommand("insertText", false, promptText);
+
+    console.log("[SUMMARIZE] Prompt injected into ProseMirror");
+
+    // Auto-click send button after a small delay to ensure React state sync
+    setTimeout(() => {
+      const sendButton = document.querySelector('[data-testid="send-button"]') as HTMLButtonElement | null;
+      if (sendButton) {
+        sendButton.click();
+        console.log("[SUMMARIZE] Send button clicked");
+      } else {
+        console.warn("[SUMMARIZE] Send button not found");
+      }
+    }, 100);
+  };
 
   const messageEntries = Object.entries(userMessages);
 
@@ -78,6 +119,29 @@ const App: React.FC = () => {
               }}
             >
               ×
+            </button>
+          </div>
+
+          <div style={{ marginBottom: '10px' }}>
+            <button
+              onClick={handleSummarize}
+              disabled={!conversationContext}
+              style={{
+                width: '100%',
+                padding: '8px',
+                backgroundColor: conversationContext ? '#10a37f' : '#3e3e3e',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: conversationContext ? 'pointer' : 'not-allowed',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => conversationContext && (e.currentTarget.style.backgroundColor = '#1a7f64')}
+              onMouseOut={(e) => conversationContext && (e.currentTarget.style.backgroundColor = '#10a37f')}
+            >
+              Summarize Conversation
             </button>
           </div>
 
