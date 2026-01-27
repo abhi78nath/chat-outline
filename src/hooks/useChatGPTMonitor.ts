@@ -32,10 +32,24 @@ export const useChatGPTMonitor = () => {
             // Handle full conversation mapping (load/history)
             if (responseData?.mapping) {
                 const newMessages: Record<string, string> = {};
+                const conversationLog: { user: string; assistant: string }[] = [];
+
                 for (const [id, node] of Object.entries(responseData.mapping) as any) {
                     if (node.message?.author?.role === 'user' && node.message?.content?.parts?.[0]) {
                         newMessages[id] = node.message.content.parts[0];
                     }
+                    if (node.message?.author?.role === 'assistant' && node.message?.content?.parts?.[0]) {
+                        const assistantText = node.message.content.parts[0];
+                        const parentId = node.parent;
+                        const parentNode = responseData.mapping[parentId];
+                        if (parentNode && parentNode.message?.author?.role === 'user' && parentNode.message?.content?.parts?.[0]) {
+                            const userText = parentNode.message.content.parts[0];
+                            conversationLog.push({ user: userText, assistant: assistantText });
+                        }
+                    }
+                }
+                if (conversationLog.length > 0) {
+                    console.log("[USER-BOT MESSAGES]", conversationLog);
                 }
                 setUserMessages(prev => ({ ...prev, ...newMessages }));
             }
@@ -58,6 +72,12 @@ export const useChatGPTMonitor = () => {
             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     };
+
+    useEffect(() => {
+        if (Object.keys(userMessages).length > 0) {
+            console.log('[AI Chat TOC] Updated User Messages:', userMessages);
+        }
+    }, [userMessages]);
 
     return { userMessages, scrollToMessage };
 };

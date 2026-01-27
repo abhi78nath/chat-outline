@@ -60,7 +60,7 @@
                     } catch {
                         responseData = body;
                     }
-
+                    console.log('[AI Chat TOC] Intercepted Response Body:', responseData);
                     console.log('[AI Chat TOC] Sending CHAT_API_RESPONSE to Content Script');
                     // Notify the content script
                     window.postMessage({
