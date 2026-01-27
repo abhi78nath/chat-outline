@@ -7,6 +7,7 @@ export interface UserMessage {
 
 export const useChatGPTMonitor = () => {
     const [userMessages, setUserMessages] = useState<Record<string, string>>({});
+    const [conversationContext, setConversationContext] = useState<string>('');
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -49,7 +50,9 @@ export const useChatGPTMonitor = () => {
                     }
                 }
                 if (conversationLog.length > 0) {
-                    console.log("[USER-BOT MESSAGES]", conversationLog);
+                    const plainTextLog = conversationLog.map(entry => `USER:\n${entry.user}\n\nASSISTANT:\n${entry.assistant}`).join('\n\n---\n\n');
+                    console.log("[USER-BOT MESSAGES]", plainTextLog);
+                    setConversationContext(plainTextLog);
                 }
                 setUserMessages(prev => ({ ...prev, ...newMessages }));
             }
@@ -79,5 +82,5 @@ export const useChatGPTMonitor = () => {
         }
     }, [userMessages]);
 
-    return { userMessages, scrollToMessage };
+    return { userMessages, scrollToMessage, conversationContext };
 };
