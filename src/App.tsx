@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
 import { useChatGPTMonitor } from './hooks/useChatGPTMonitor';
 import { useDraggable } from './hooks/useDraggable';
+import { GripVertical, X, Sparkles } from 'lucide-react';
+import { useTheme } from './hooks/useTheme';
 
 const App: React.FC = () => {
   const { userMessages, scrollToMessage, conversationContext } = useChatGPTMonitor();
   const { position, onMouseDown, isDragging } = useDraggable();
+  const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+
+  const isLight = theme === 'light';
+  const styles = {
+    bg: isLight ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.2)',
+    text: isLight ? '#171717' : 'white',
+    textMuted: isLight ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)',
+    border: isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+    scrollbarThumb: isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+    scrollbarThumbHover: isLight ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)',
+    buttonBg: isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)',
+    buttonBgHover: isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+    shadow: isLight ? '0 8px 32px rgba(0,0,0,0.1)' : '0 8px 32px rgba(0,0,0,0.4)',
+  };
 
   const toggleOpen = () => setIsOpen(!isOpen);
 
@@ -60,94 +76,158 @@ Rules:
       }}
     >
       {!isOpen && (
-        <button
-          onClick={toggleOpen}
-          onMouseDown={onMouseDown}
+        <div
           style={{
-            padding: '8px 16px',
-            backgroundColor: 'black',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: isDragging ? 'grabbing' : 'pointer',
-            fontSize: '14px',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: styles.bg,
+            color: styles.text,
+            border: `1px solid ${styles.border}`,
+            borderRadius: '6px',
+            boxShadow: styles.shadow,
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            transition: 'background-color 0.2s',
+            padding: '2px',
+            width: "12.5rem"
           }}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = isLight ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.3)')}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = styles.bg)}
         >
-          Show Messages
-        </button>
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              onMouseDown(e);
+            }}
+            style={{
+              cursor: isDragging ? 'grabbing' : 'grab',
+              padding: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              color: styles.textMuted,
+              transition: 'color 0.2s',
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.color = isLight ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)')}
+            onMouseOut={(e) => (e.currentTarget.style.color = styles.textMuted)}
+          >
+            <GripVertical size={16} />
+          </div>
+
+          <button
+            onClick={toggleOpen}
+            style={{
+              padding: '6px 10px 6px 4px',
+              backgroundColor: 'transparent',
+              color: styles.text,
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <span style={{ fontWeight: 500, letterSpacing: '0.02em' }}>Conversation Outline</span>
+          </button>
+        </div>
       )}
 
       {isOpen && (
         <div
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+            backgroundColor: styles.bg,
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
-            padding: '10px',
-            paddingBottom: '35px',
-            border: '1px solid rgb(49, 49, 49)',
-            borderRadius: '8px',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+            padding: '12px',
+            paddingBottom: '12px',
+            border: `1px solid ${styles.border}`,
+            borderRadius: '10px',
+            boxShadow: styles.shadow,
             width: '320px',
-            color: 'white',
+            color: styles.text,
             position: 'relative'
           }}
         >
+          <style>
+            {`
+              .custom-scrollbar::-webkit-scrollbar {
+                width: 5px;
+              }
+              .custom-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+              }
+              .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: ${styles.scrollbarThumb};
+                border-radius: 10px;
+              }
+              .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: ${styles.scrollbarThumbHover};
+              }
+            `}
+          </style>
           <div
-            onMouseDown={onMouseDown}
             style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '10px',
-              paddingBottom: '5px',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-              cursor: isDragging ? 'grabbing' : 'move'
+              marginBottom: '12px',
+              paddingBottom: '8px',
+              borderBottom: `1px solid ${styles.border}`,
             }}
           >
-            <span style={{ fontWeight: 600, fontSize: '14px' }}>User Messages</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+              <div
+                onMouseDown={onMouseDown}
+                style={{
+                  cursor: isDragging ? 'grabbing' : 'grab',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: styles.textMuted,
+                  transition: 'color 0.2s',
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.color = isLight ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)')}
+                onMouseOut={(e) => (e.currentTarget.style.color = styles.textMuted)}
+              >
+                <GripVertical size={16} />
+              </div>
+              <span style={{ fontWeight: 600, fontSize: '14px', letterSpacing: '0.01em' }}>Conversation Outline</span>
+            </div>
             <button
               onClick={toggleOpen}
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: 'white',
+                color: styles.textMuted,
                 fontSize: '20px',
                 cursor: 'pointer',
-                padding: '0 5px'
+                padding: '0 5px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'color 0.2s',
               }}
+              onMouseOver={(e) => (e.currentTarget.style.color = styles.text)}
+              onMouseOut={(e) => (e.currentTarget.style.color = styles.textMuted)}
             >
-              ×
+              <X size={16} />
             </button>
           </div>
 
-          <div style={{ marginBottom: '10px' }}>
-            <button
-              onClick={handleSummarize}
-              disabled={!conversationContext}
-              style={{
-                width: '100%',
-                padding: '8px',
-                backgroundColor: conversationContext ? '#10a37f' : '#3e3e3e',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: conversationContext ? 'pointer' : 'not-allowed',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseOver={(e) => conversationContext && (e.currentTarget.style.backgroundColor = '#1a7f64')}
-              onMouseOut={(e) => conversationContext && (e.currentTarget.style.backgroundColor = '#10a37f')}
-            >
-              Summarize Conversation
-            </button>
-          </div>
 
-          <div style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '5px' }}>
+
+          <div
+            className="custom-scrollbar"
+            style={{
+              maxHeight: '400px',
+              overflowY: 'auto',
+              paddingRight: '5px',
+              scrollbarWidth: 'thin',
+              scrollbarColor: `${styles.scrollbarThumb} transparent`
+            }}
+          >
             {messageEntries.length === 0 ? (
-              <div style={{ fontSize: '13px', color: '#ccc', textAlign: 'center', padding: '20px 0' }}>
+              <div style={{ fontSize: '13px', color: styles.textMuted, textAlign: 'center', padding: '20px 0' }}>
                 No messages detected yet.
               </div>
             ) : (
@@ -159,20 +239,30 @@ Rules:
                     display: 'block',
                     width: '100%',
                     textAlign: 'left',
-                    background: 'transparent',
-                    border: 'none',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                    color: '#eee',
-                    padding: '8px 4px',
+                    background: isLight ? 'rgba(0, 0, 0, 0.03)' : 'rgba(255, 255, 255, 0.03)',
+                    border: `1px solid ${isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)'}`,
+                    borderRadius: '6px',
+                    color: isLight ? '#404040' : '#eee',
+                    padding: '8px 10px',
                     fontSize: '13px',
                     cursor: 'pointer',
-                    transition: 'background 0.2s',
+                    transition: 'all 0.2s',
+                    marginBottom: '6px',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    lineHeight: '1.4'
                   }}
-                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)')}
-                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.borderColor = isLight ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)';
+                    e.currentTarget.style.color = isLight ? '#000' : 'white';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = isLight ? 'rgba(0, 0, 0, 0.03)' : 'rgba(255, 255, 255, 0.03)';
+                    e.currentTarget.style.borderColor = isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.color = isLight ? '#404040' : '#eee';
+                  }}
                   title={text}
                 >
                   {text}
@@ -181,21 +271,31 @@ Rules:
             )}
           </div>
 
-          <a
-            href="https://github.com/mdsaban/chatgpt-boost/issues/new"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              position: 'absolute',
-              bottom: '8px',
-              right: '10px',
-              fontSize: '11px',
-              color: '#888',
-              textDecoration: 'none'
-            }}
-          >
-            Report an issue
-          </a>
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-start' }}>
+            <button
+              onClick={handleSummarize}
+              disabled={!conversationContext}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '6px 12px',
+                backgroundColor: styles.buttonBg,
+                color: conversationContext ? styles.text : styles.textMuted,
+                border: `1px solid ${styles.border}`,
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: 500,
+                cursor: conversationContext ? 'pointer' : 'not-allowed',
+                transition: 'all 0.2s',
+              }}
+              onMouseOver={(e) => conversationContext && (e.currentTarget.style.backgroundColor = styles.buttonBgHover)}
+              onMouseOut={(e) => conversationContext && (e.currentTarget.style.backgroundColor = styles.buttonBg)}
+            >
+              <Sparkles size={14} style={{ color: conversationContext ? '#10a37f' : 'inherit' }} />
+              Summarize
+            </button>
+          </div>
         </div>
       )}
     </div>
