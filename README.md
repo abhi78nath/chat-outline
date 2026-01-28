@@ -1,75 +1,60 @@
-# React + TypeScript + Vite
+# Chat Outline
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Chat Outline** is a browser extension designed to help you navigate and manage long conversations in ChatGPT and Grok. It automatically generates a clear Table of Contents (ToC) from your questions, allowing for quick auto-scroll navigation and providing a manual summarization tool to summarize a conversation which may be used as a continuation context in a new session or agent.
 
-Currently, two official plugins are available:
+![Chat Outline Preview](public/icons/icon128.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## React Compiler
+-   **Automatic Table of Contents**: Instantly lists all user questions/prompts in a floating, draggable side panel.
+-   **Click-to-Scroll**: Navigate to any part of a long conversation with a single click.
+-   **Conversation Summarization**: Manually trigger a concise summary of the current chat,perfect for transferring context to a new session or agent.
+-   **Privacy First**: All processing happens locally in your browser. No data is sent to external servers.
+-   **Smart Interception**: Uses fetch interception to maintain a real-time list of messages as you chat.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## 🛠 Supported Platforms
 
-Note: This will impact Vite dev & build performances.
+-   [ChatGPT](https://chatgpt.com)
+-   [Grok](https://grok.com)
 
-## Expanding the ESLint configuration
+## 📦 Installation (Development Mode)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-username/ai-chat-toc.git
+    cd ai-chat-toc
+    ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2.  **Install dependencies**:
+    ```bash
+    bun install
+    # or
+    npm install
+    ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+3.  **Run in development mode**:
+    ```bash
+    bun run dev
+    # or
+    npm run dev
+    ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+4.  **Load the extension in Chrome**:
+    -   Open Chrome and navigate to `chrome://extensions/`.
+    -   Enable **Developer mode** (top right).
+    -   Click **Load unpacked**.
+    -   Select the `dist` folder generated in the project directory.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🛠 Technology Stack
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+-   **Framework**: React 19
+-   **Build Tool**: Vite + CRXJS
+-   **Styling**: Vanilla CSS with a focus on premium aesthetics.
+-   **Icons**: Lucide React
+-   **Language**: TypeScript
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## License
+
+MIT
+
+**This project is not affiliated with or endorsed by OpenAI or xAI**
