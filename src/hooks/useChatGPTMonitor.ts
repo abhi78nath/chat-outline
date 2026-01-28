@@ -42,7 +42,7 @@ export const useChatGPTMonitor = () => {
                     const messageId = requestData.messages[0].id;
                     const text = requestData.messages[0].content?.parts?.[0];
                     if (messageId && text) {
-                        setUserMessages(prev => ({ ...prev, [messageId]: text }));
+                        setUserMessages({ [messageId]: text });
                     }
                 }
                 return;
@@ -56,7 +56,7 @@ export const useChatGPTMonitor = () => {
                 const messageId = requestData.messages[0].id;
                 const text = requestData.messages[0].content?.parts?.[0];
                 if (messageId && text && !newChat) {
-                    setUserMessages(prev => ({ ...prev, [messageId]: text }));
+                    setUserMessages({ [messageId]: text });
                 } else if (newChat) {
                     setUserMessages({});
                 }
@@ -85,7 +85,7 @@ export const useChatGPTMonitor = () => {
                     const plainTextLog = conversationLog.map(entry => `USER:\n${entry.user}\n\nASSISTANT:\n${entry.assistant}`).join('\n\n---\n\n');
                     setConversationContext(plainTextLog);
                 }
-                setUserMessages(prev => ({ ...prev, ...newMessages }));
+                setUserMessages(newMessages);
             }
         };
 
