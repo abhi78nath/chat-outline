@@ -74,6 +74,39 @@ export const useChatGPTMonitor = () => {
         return () => window.removeEventListener('message', handleMessage);
     }, [currentConversationId]);
 
+    // Monitor URL changes to clear state on "New Chat" pages
+    useEffect(() => {
+        const checkUrl = () => {
+            const path = window.location.pathname;
+            // Patterns like / or /?model=... OR /c/ (if empty? unlikely but safe)
+            // If it's just chatgpt.com/ or chatgpt.com/?..., and not /c/[uuid]
+            const isConversationPage = /^\/c\/[a-f0-9-]/.test(path);
+            const isNewChatPage = path === '/' || path === '/chat' || (!isConversationPage && path.startsWith('/?'));
+
+            if (isNewChatPage && currentConversationId !== null) {
+                console.log('[AI Chat TOC] URL indicates New Chat. Cleaning state.');
+                setUserMessages({});
+                setConversationContext('');
+                setCurrentConversationId(null);
+            }
+        };
+
+        // Check on mount and on every extension periodic check if needed, 
+        // but popstate/pushState are better for SPAs.
+        window.addEventListener('popstate', checkUrl);
+
+        // Since ChatGPT is a complex SPA, we might need a small interval as fallback 
+        // because they often use internal routing that might not trigger popstate on all transitions
+        const interval = setInterval(checkUrl, 1000);
+
+        checkUrl(); // Initial check
+
+        return () => {
+            window.removeEventListener('popstate', checkUrl);
+            clearInterval(interval);
+        };
+    }, [currentConversationId]);
+
     const scrollToMessage = (messageId: string) => {
         const element = document.querySelector(`[data-message-id="${messageId}"]`);
         if (element) {
