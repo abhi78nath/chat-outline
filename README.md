@@ -48,7 +48,7 @@
 ## 🛠 Technology Stack
 
 -   **Framework**: React 19
--   **Build Tool**: Vite + CRXJS
+-   **Build Tool**: Vite
 -   **Styling**: Vanilla CSS with a focus on premium aesthetics.
 -   **Icons**: Lucide React
 -   **Language**: TypeScript
