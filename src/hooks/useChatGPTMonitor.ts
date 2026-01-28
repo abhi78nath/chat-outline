@@ -8,6 +8,7 @@ export interface UserMessage {
 export const useChatGPTMonitor = () => {
     const [userMessages, setUserMessages] = useState<Record<string, string>>({});
     const [conversationContext, setConversationContext] = useState<string>('');
+    const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -21,7 +22,18 @@ export const useChatGPTMonitor = () => {
 
             const { requestData, responseData } = event.data;
 
-            // Handle new chat (initial request)
+            // Handle detection of conversation switch or new chat
+            const newConvId = responseData?.conversation_id || requestData?.conversation_id;
+            const isNewChat = requestData && !requestData.conversation_id;
+
+            if (isNewChat || (newConvId && newConvId !== currentConversationId)) {
+                console.log('[AI Chat TOC] Conversation changed or new chat started. Cleaning state.');
+                setUserMessages({});
+                setConversationContext('');
+                setCurrentConversationId(newConvId || null);
+            }
+
+            // Handle new message in current chat
             if (requestData?.messages?.[0]) {
                 const messageId = requestData.messages[0].id;
                 const text = requestData.messages[0].content?.parts?.[0];
@@ -56,18 +68,11 @@ export const useChatGPTMonitor = () => {
                 }
                 setUserMessages(prev => ({ ...prev, ...newMessages }));
             }
-
-            // Handle clearing on new chat/delete
-            const isNewChat = requestData && !requestData.conversation_id;
-            if (isNewChat) {
-                // Optionally keep or clear. Original code cleared them sometimes.
-                // Let's follow original logic if possible.
-            }
         };
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    }, []);
+    }, [currentConversationId]);
 
     const scrollToMessage = (messageId: string) => {
         const element = document.querySelector(`[data-message-id="${messageId}"]`);
