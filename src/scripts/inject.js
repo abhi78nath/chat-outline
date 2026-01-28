@@ -47,6 +47,15 @@
         const isChatApi = apiPattern.test(url);
         if (isChatApi) {
             console.log('[AI Chat TOC] Matched ChatGPT API URL!');
+            if (method === 'POST' && requestData) {
+                console.log('[AI Chat TOC] Sending CHAT_API_REQUEST to Content Script');
+                window.postMessage({
+                    type: 'CHAT_API_REQUEST',
+                    url,
+                    method,
+                    requestData
+                }, '*');
+            }
         }
 
         try {
