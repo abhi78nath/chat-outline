@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Chat Outline",
     "version": "1.0.0",
-    "description": "Chat Outline helps you navigate long conversations in ChatGPT and Grok by organizing your questions into a clear Table of Contents with quick auto-scroll navigation. It also lets you manually generate a concise conversation summary if the user wishes to continue the conversation in a new chat or to new agent. All processing happens locally in your browser.",
+    "description": "Organize long ChatGPT and Grok conversations into a clear table of contents with quick navigation and summaries.",
     "icons": {
         "16": "public/icons/icon16.png",
         "32": "public/icons/icon32.png",
