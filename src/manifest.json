@@ -1,23 +1,20 @@
 {
     "manifest_version": 3,
-    "name": "AI Chat TOC",
+    "name": "Chat Outline",
     "version": "1.0.0",
-    "description": "ChatGPT Conversation Outline and Monitoring.",
+    "description": "Chat Outline helps you navigate long conversations in ChatGPT and Grok by organizing your questions into a clear Table of Contents with quick auto-scroll navigation. It also lets you manually generate a concise conversation summary if the user wishes to continue the conversation in a new chat or to new agent. All processing happens locally in your browser.",
     "icons": {
         "16": "public/icons/icon16.png",
         "32": "public/icons/icon32.png",
         "48": "public/icons/icon48.png",
         "128": "public/icons/icon128.png"
     },
-    "permissions": [
-        "storage"
-    ],
     "host_permissions": [
         "https://chatgpt.com/*",
         "https://grok.com/*"
     ],
     "action": {
-        "default_title": "AI Chat TOC"
+        "default_title": "Chat Outline"
     },
     "content_scripts": [
         {
