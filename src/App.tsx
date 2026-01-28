@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
 import { useChatGPTMonitor } from './hooks/useChatGPTMonitor';
+import { useGrokMonitor } from './hooks/useGrokMonitor';
 import { useDraggable } from './hooks/useDraggable';
 import { GripVertical, X, Sparkles } from 'lucide-react';
 import { useTheme } from './hooks/useTheme';
 
 const App: React.FC = () => {
-  const { userMessages, scrollToMessage, conversationContext } = useChatGPTMonitor();
+  const isGrok = window.location.hostname.includes('grok.com');
+
+  // Conditionally call hooks (React hooks must be called unconditionally, so we call both or use a wrapper)
+  // Actually, hooks can't be called conditionally. We'll call both but they will handle their own domain logic or we can create a unified hook.
+  // For now, let's just make both hooks safe to run everywhere or call them and pick the results.
+
+  const chatGPT = useChatGPTMonitor();
+  const grok = useGrokMonitor();
+
+  const { userMessages, scrollToMessage, conversationContext } = isGrok ? grok : chatGPT;
+
   const { position, onMouseDown, isDragging } = useDraggable();
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -35,6 +46,33 @@ Rules:
 - Use bullet points only
 - Max 150 words
 `;
+
+    if (isGrok) {
+      const grokEditor = document.querySelector('textarea, [contenteditable="true"]') as HTMLTextAreaElement | HTMLDivElement | null;
+      if (!grokEditor) {
+        alert("Grok input field not found.");
+        return;
+      }
+      grokEditor.focus();
+      if (grokEditor.tagName === 'TEXTAREA') {
+        (grokEditor as HTMLTextAreaElement).value = promptText;
+        // Trigger input event for React-based sites
+        grokEditor.dispatchEvent(new Event('input', { bubbles: true }));
+      } else {
+        document.execCommand("selectAll", false);
+        document.execCommand("delete", false);
+        document.execCommand("insertText", false, promptText);
+      }
+
+      setTimeout(() => {
+        // Grok send button selector - might need adjustment but usually it's a sibling or child of the input area
+        const sendButton = document.querySelector('button[aria-label*="Send"], button[type="submit"]') as HTMLButtonElement | null;
+        if (sendButton) {
+          sendButton.click();
+        }
+      }, 100);
+      return;
+    }
 
     const editor = document.getElementById("prompt-textarea") as HTMLDivElement | null;
 

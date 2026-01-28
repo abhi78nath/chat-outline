@@ -13,7 +13,8 @@
         "storage"
     ],
     "host_permissions": [
-        "https://chatgpt.com/*"
+        "https://chatgpt.com/*",
+        "https://grok.com/*"
     ],
     "action": {
         "default_title": "AI Chat TOC"
@@ -24,7 +25,8 @@
                 "src/content.tsx"
             ],
             "matches": [
-                "https://chatgpt.com/*"
+                "https://chatgpt.com/*",
+                "https://grok.com/*"
             ],
             "run_at": "document_start"
         }
@@ -35,7 +37,8 @@
                 "src/scripts/inject.js"
             ],
             "matches": [
-                "https://chatgpt.com/*"
+                "https://chatgpt.com/*",
+                "https://grok.com/*"
             ]
         }
     ]
