@@ -15,7 +15,7 @@ const App: React.FC = () => {
   const chatGPT = useChatGPTMonitor();
   const grok = useGrokMonitor();
 
-  const { userMessages, scrollToMessage, conversationContext } = isGrok ? grok : chatGPT;
+  const { userMessages, scrollToMessage } = isGrok ? grok : chatGPT;
 
   const { position, onMouseDown, isDragging } = useDraggable();
   const theme = useTheme();
@@ -312,25 +312,25 @@ Rules:
           <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-start' }}>
             <button
               onClick={handleSummarize}
-              disabled={!conversationContext}
+              // disabled={!conversationContext}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
                 padding: '6px 12px',
                 backgroundColor: styles.buttonBg,
-                color: conversationContext ? styles.text : styles.textMuted,
+                color: styles.text,
                 border: `1px solid ${styles.border}`,
                 borderRadius: '6px',
                 fontSize: '12px',
                 fontWeight: 500,
-                cursor: conversationContext ? 'pointer' : 'not-allowed',
+                cursor: 'pointer',
                 transition: 'all 0.2s',
               }}
-              onMouseOver={(e) => conversationContext && (e.currentTarget.style.backgroundColor = styles.buttonBgHover)}
-              onMouseOut={(e) => conversationContext && (e.currentTarget.style.backgroundColor = styles.buttonBg)}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = styles.buttonBgHover)}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = styles.buttonBg)}
             >
-              <Sparkles size={14} style={{ color: conversationContext ? '#10a37f' : 'inherit' }} />
+              <Sparkles size={14} style={{ color: '#10a37f' }} />
               Summarize
             </button>
           </div>
