@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Outline - Navigate long AI conversations</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="shortcut icon" href="./favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@100;200;300;400;500;600;700;800;900&family=Geist:wght@100;200;300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@100;200;300;400;500;600;700&family=IBM+Plex+Sans:wght@100;200;300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Nunito:wght@200;300;400;500;600;700;800;900&family=PT+Serif:wght@400;700&family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&family=Roboto:wght@100;300;400;500;700;900&family=Shantell+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <style id="theme-styles">
+        html {
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            /* Overriding for specific dark theme request */
+            --bg-dark: #09090b;
+            --bg-card: #18181b;
+            --bg-subtle: #27272a;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --border-dark: #27272a;
+            --accent-teal: #2dd4bf;
+            --accent-hover: #14b8a6;
+        }
+
+        .export-wrapper {
+            font-family: var(--font-family-body);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.5;
+            margin: 0;
+            min-height: 812px;
+            position: relative;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section {
+            padding: 96px 0;
+        }
+    </style>
+    <style id="component-styles">
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 48px;
+            padding: 0 24px;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.2s;
+            cursor: pointer;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-teal);
+            color: #000000;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-subtle);
+            color: var(--text-main);
+            border: 1px solid var(--border-dark);
+        }
+
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(0.5);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            background-color: rgba(45, 212, 191, 0.1);
+            color: var(--accent-teal);
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid rgba(45, 212, 191, 0.2);
+        }
+    </style>
+    <style id="layout-styles">
+        .header {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: rgba(9, 9, 11, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-dark);
+            z-index: 50;
+        }
+
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--text-main);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .hero {
+            padding-top: 80px;
+            padding-bottom: 80px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            line-height: 1.1;
+            font-weight: 700;
+            margin: 24px 0;
+            max-width: 900px;
+            background: linear-gradient(to bottom, #ffffff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .hero-video-wrapper {
+            width: 100%;
+            max-width: 1024px;
+            aspect-ratio: 16 / 9;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            border: 1px solid var(--border-dark);
+            background: var(--bg-card);
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 20px 50px -10px rgba(0, 0, 0, 0.5);
+            margin-top: 64px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+        }
+    </style>
+    <style id="root-variables">
+        :root {
+            --background: #0b0f13;
+            --foreground: #e6eef6;
+            --border: #ffffff2d;
+            --input: #0f1316;
+            --primary: #16a085;
+            --primary-foreground: #071010;
+            --secondary: #0e1417;
+            --secondary-foreground: #cfedea;
+            --muted: #0b0d0f;
+            --muted-foreground: #8a98a3;
+            --success: #10b981;
+            --success-foreground: #071010;
+            --accent: #2dd4bf;
+            --accent-foreground: #062827;
+            --destructive: #f87171;
+            --destructive-foreground: #1a0b0b;
+            --warning: #f59e0b;
+            --warning-foreground: #1b1206;
+            --card: #0f1316;
+            --card-foreground: #e6eef6;
+            --sidebar: #0b0f13;
+            --sidebar-foreground: #cfedea;
+            --sidebar-primary: #092823;
+            --sidebar-primary-foreground: #2dd4bf;
+            --radius-sm: 4px;
+            --radius-md: 6px;
+            --radius-lg: 8px;
+            --radius-xl: 12px;
+            --font-family-body: Inter;
+        }
+    </style>
+</head>
+
+<body style="margin: 0;">
+    <div class="export-wrapper">
+        <header class="header">
+            <div class="container nav-row">
+                <div class="logo">
+                    <div style="
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--accent-teal);
+              ">
+                        <!-- <iconify-icon icon="lucide:list-tree" style="font-size: 24px"></iconify-icon> -->
+                    </div>
+                    Chat Outline
+                </div>
+                <nav class="nav-links">
+                    <a href="#how-it-works" data-media-type="banani-button">How it works</a>
+                    <a href="#features" data-media-type="banani-button">Features</a>
+                    <a href="#privacy" data-media-type="banani-button">Privacy</a>
+                </nav>
+                <div style="display: flex; gap: 16px; align-items: center">
+                    <a href="#" class="btn btn-primary btn-disabled" style="height: 36px; font-size: 13px"
+                        data-media-type="banani-button">Coming Soon</a>
+                </div>
+            </div>
+        </header>
+
+        <section class="hero container">
+            <div class="badge">Supporting ChatGPT and Grok</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px; opacity: 0.8;">
+                Not endorsed by openai.com or x.ai
+            </div>
+            <h1>Navigate long AI conversations.<br />Never lose context.</h1>
+            <p>
+                Instant outlines and summaries for ChatGPT and Grok — all local, no
+                tracking.
+            </p>
+            <div style="display: flex; gap: 16px">
+                <a href="#" class="btn btn-primary btn-disabled" data-media-type="banani-button">
+                    <div style="
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              ">
+                        <iconify-icon icon="lucide:chrome" style="font-size: 20px"></iconify-icon>
+                    </div>
+                    Coming Soon
+                </a>
+                <a href="#features" class="btn btn-secondary" data-media-type="banani-button">
+                    See features
+                </a>
+            </div>
+            <div class="hero-video-wrapper">
+                <iframe width="100%" height="100%"
+                    src="https://www.youtube.com/embed/pq0Fx67pAf8?autoplay=1&mute=1&loop=1&playlist=pq0Fx67pAf8&controls=1&rel=0&modestbranding=1&&showinfo=0"
+                    title="YouTube video player" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope;" allowfullscreen
+                    style="border: none;"></iframe>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="container section">
+            <div style="text-align: center; margin-bottom: 64px">
+                <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 16px">
+                    How it works
+                </h2>
+                <p style="color: var(--text-muted)">Get organized in seconds.</p>
+            </div>
+            <div style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+          ">
+                <div class="card">
+                    <div style="
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.05);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--accent-teal);
+                margin-bottom: 24px;
+              ">
+                        <iconify-icon icon="lucide:message-square-plus" style="font-size: 24px"></iconify-icon>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px">
+                        1. Ask Questions
+                    </h3>
+                    <p style="
+                color: var(--text-muted);
+                font-size: 15px;
+                line-height: 1.6;
+              ">
+                        Chat normally in ChatGPT or Grok. The extension quietly observes
+                        your new headers and questions.
+                    </p>
+                </div>
+                <div class="card">
+                    <div style="
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.05);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--accent-teal);
+                margin-bottom: 24px;
+              ">
+                        <iconify-icon icon="lucide:list-video" style="font-size: 24px"></iconify-icon>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px">
+                        2. Outline Builds Automatically
+                    </h3>
+                    <p style="
+                color: var(--text-muted);
+                font-size: 15px;
+                line-height: 1.6;
+              ">
+                        A sidebar appears with clickable links to every question, letting
+                        you jump back and forth instantly.
+                    </p>
+                </div>
+                <div class="card">
+                    <div style="
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.05);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--accent-teal);
+                margin-bottom: 24px;
+              ">
+                        <iconify-icon icon="lucide:file-text" style="font-size: 24px"></iconify-icon>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px">
+                        3. Generate Summary
+                    </h3>
+                    <p style="
+                color: var(--text-muted);
+                font-size: 15px;
+                line-height: 1.6;
+              ">
+                        Need to switch chats? Generate a context summary with one click
+                        and paste it into a new window.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="container section">
+            <!-- Feature 1 -->
+            <div style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            margin-bottom: 120px;
+          ">
+                <div>
+                    <h3 style="font-size: 32px; font-weight: 700; margin-bottom: 16px">
+                        Conversation Outline
+                    </h3>
+                    <p style="
+                font-size: 18px;
+                color: var(--text-muted);
+                line-height: 1.6;
+                margin-bottom: 32px;
+              ">
+                        Stop scrolling endlessly to find that one code snippet. Chat
+                        Outline detects your questions and builds a persistent Table of
+                        Contents.
+                    </p>
+                    <ul style="
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                padding: 0;
+                list-style: none;
+              ">
+                        <li style="
+                  display: flex;
+                  gap: 12px;
+                  align-items: center;
+                  font-weight: 500;
+                ">
+                            <iconify-icon icon="lucide:check-circle"
+                                style="color: var(--accent-teal); font-size: 20px"></iconify-icon>
+                            Auto-detects headers
+                        </li>
+                        <li style="
+                  display: flex;
+                  gap: 12px;
+                  align-items: center;
+                  font-weight: 500;
+                ">
+                            <iconify-icon icon="lucide:check-circle"
+                                style="color: var(--accent-teal); font-size: 20px"></iconify-icon>
+                            Smooth scroll navigation
+                        </li>
+                        <li style="
+                  display: flex;
+                  gap: 12px;
+                  align-items: center;
+                  font-weight: 500;
+                ">
+                            <iconify-icon icon="lucide:check-circle"
+                                style="color: var(--accent-teal); font-size: 20px"></iconify-icon>
+                            Draggable panel
+                        </li>
+                    </ul>
+                </div>
+                <div style="
+              background: var(--bg-card);
+              border: 1px solid var(--border-dark);
+              border-radius: var(--radius-lg);
+              overflow: hidden;
+              padding: 8px;
+            ">
+                    <img src="./img1.png" data-aspect-ratio="4:3"
+                        data-query="dark mode chat interface with sidebar navigation visible highly detailed dark background"
+                        alt="Outline Feature" style="width: 100%; border-radius: 8px; display: block" />
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+          ">
+                <div style="
+              background: var(--bg-card);
+              border: 1px solid var(--border-dark);
+              border-radius: var(--radius-lg);
+              overflow: hidden;
+              padding: 8px;
+            ">
+                    <img src="./img2.png" data-aspect-ratio="4:3"
+                        data-query="coding environment dark theme with code summary modal window overlay"
+                        alt="Summary Feature" style="width: 100%; border-radius: 8px; display: block" />
+                </div>
+                <div>
+                    <h3 style="font-size: 32px; font-weight: 700; margin-bottom: 16px">
+                        Smart Summaries
+                    </h3>
+                    <p style="
+                font-size: 18px;
+                color: var(--text-muted);
+                line-height: 1.6;
+                margin-bottom: 32px;
+              ">
+                        AI conversations often hit context limits. Generate a manual
+                        summary of your current session to carry the essential context
+                        into a fresh chat.
+                    </p>
+                    <div style="display: flex; gap: 16px">
+                        <div style="
+                  padding: 12px 20px;
+                  background: rgba(255, 255, 255, 0.03);
+                  border-radius: 8px;
+                  border: 1px solid var(--border-dark);
+                ">
+                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px">
+                                Summarize
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-muted)">
+                                One-click generation
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="privacy" class="container section">
+            <div style="
+            background: linear-gradient(
+              180deg,
+              var(--bg-card) 0%,
+              rgba(24, 24, 27, 0) 100%
+            );
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-xl);
+            padding: 80px 40px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          ">
+                <div style="
+              width: 64px;
+              height: 64px;
+              background: rgba(45, 212, 191, 0.1);
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-bottom: 24px;
+              color: var(--accent-teal);
+            ">
+                    <iconify-icon icon="lucide:shield-check" style="font-size: 32px"></iconify-icon>
+                </div>
+                <h2 style="font-size: 36px; font-weight: 700; margin-bottom: 16px">
+                    Privacy First. No Compromises.
+                </h2>
+                <p style="
+              font-size: 18px;
+              color: var(--text-muted);
+              max-width: 640px;
+              margin-bottom: 48px;
+            ">
+                    We built Chat Outline because we care about our own privacy. The
+                    extension runs entirely in your browser. We don't have servers, we
+                    don't track you, and we don't read your chats.
+                </p>
+                <div style="
+              display: flex;
+              gap: 40px;
+              flex-wrap: wrap;
+              justify-content: center;
+            ">
+
+                    <div style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+              ">
+                        <iconify-icon icon="lucide:wifi-off"
+                            style="font-size: 24px; color: var(--text-main)"></iconify-icon>
+                        <span style="font-weight: 500; font-size: 15px">No Analytics</span>
+                    </div>
+                    <div style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+              ">
+                        <iconify-icon icon="lucide:user-x"
+                            style="font-size: 24px; color: var(--text-main)"></iconify-icon>
+                        <span style="font-weight: 500; font-size: 15px">No Accounts</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container" style="padding: 64px 0 120px; text-align: center">
+            <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 32px">
+                Ready to take control of your chats?
+            </h2>
+            <a href="#" class="btn btn-primary btn-disabled" style="height: 56px; padding: 0 48px; font-size: 16px"
+                data-media-type="banani-button">
+                Coming Soon
+            </a>
+            <!-- <p style="margin-top: 16px; font-size: 14px; color: var(--text-muted)">
+                Version 1.2 • Updated Oct 2024
+            </p> -->
+        </section>
+
+        <footer style="
+          border-top: 1px solid var(--border-dark);
+          padding: 64px 0;
+          color: var(--text-muted);
+          font-size: 14px;
+        ">
+            <div class="container" style="
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+          ">
+                <div>
+                    <div style="
+                color: var(--text-main);
+                font-weight: 600;
+                font-size: 16px;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              ">
+                        <iconify-icon icon="lucide:list-tree"
+                            style="color: var(--accent-teal); font-size: 18px"></iconify-icon>
+                        Chat Outline
+                    </div>
+                    <p style="max-width: 300px">
+                        Navigating long conversations with ease.
+                    </p>
+                </div>
+                <!-- <div style="display: flex; gap: 48px">
+                    <div style="display: flex; flex-direction: column; gap: 16px">
+                        <span style="color: var(--text-main); font-weight: 600">Product</span>
+                        <a href="#">Features</a>
+                        <a href="#">Changelog</a>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 16px">
+                        <span style="color: var(--text-main); font-weight: 600">Legal</span>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms</a>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 16px">
+                        <span style="color: var(--text-main); font-weight: 600">Connect</span>
+                        <a href="#">GitHub</a>
+                        <a href="#">Twitter</a>
+                    </div>
+                </div> -->
+            </div>
+        </footer>
+    </div>
+    <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+</body>
+
+</html>
