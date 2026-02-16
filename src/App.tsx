@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useChatGPTMonitor } from './hooks/useChatGPTMonitor';
 import { useGrokMonitor } from './hooks/useGrokMonitor';
 import { useDraggable } from './hooks/useDraggable';
-import { GripVertical, X, Sparkles } from 'lucide-react';
+import { GripVertical, X, Sparkles, ChevronDown } from 'lucide-react';
 import { useTheme } from './hooks/useTheme';
 
 const App: React.FC = () => {
@@ -142,7 +142,7 @@ Rules:
             WebkitBackdropFilter: 'blur(8px)',
             transition: 'background-color 0.2s',
             padding: '2px',
-            width: "12.5rem"
+            width: "13.5rem"
           }}
           onMouseOver={(e) => (e.currentTarget.style.backgroundColor = isLight ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.3)')}
           onMouseOut={(e) => (e.currentTarget.style.backgroundColor = styles.bg)}
@@ -177,32 +177,38 @@ Rules:
               fontSize: '14px',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: "space-between",
               gap: '8px',
+              width: "100%",
+              marginBottom: "3px"
             }}
           >
             <span style={{ fontWeight: 500, letterSpacing: '0.02em' }}>Conversation Outline</span>
+            <ChevronDown size={14} style={{ color: styles.textMuted, marginTop: '1px' }} />
           </button>
         </div>
-      )}
+      )
+      }
 
-      {isOpen && (
-        <div
-          style={{
-            backgroundColor: styles.bg,
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            padding: '12px',
-            paddingBottom: '12px',
-            border: `1px solid ${styles.border}`,
-            borderRadius: '10px',
-            boxShadow: styles.shadow,
-            width: '320px',
-            color: styles.text,
-            position: 'relative'
-          }}
-        >
-          <style>
-            {`
+      {
+        isOpen && (
+          <div
+            style={{
+              backgroundColor: styles.bg,
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              padding: '12px',
+              paddingBottom: '12px',
+              border: `1px solid ${styles.border}`,
+              borderRadius: '10px',
+              boxShadow: styles.shadow,
+              width: '320px',
+              color: styles.text,
+              position: 'relative'
+            }}
+          >
+            <style>
+              {`
               .custom-scrollbar::-webkit-scrollbar {
                 width: 5px;
               }
@@ -217,142 +223,143 @@ Rules:
                 background: ${styles.scrollbarThumbHover};
               }
             `}
-          </style>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '12px',
-              paddingBottom: '8px',
-              borderBottom: `1px solid ${styles.border}`,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-              <div
-                onMouseDown={onMouseDown}
+            </style>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '12px',
+                paddingBottom: '8px',
+                borderBottom: `1px solid ${styles.border}`,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                <div
+                  onMouseDown={onMouseDown}
+                  style={{
+                    cursor: isDragging ? 'grabbing' : 'grab',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: styles.textMuted,
+                    transition: 'color 0.2s',
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.color = isLight ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)')}
+                  onMouseOut={(e) => (e.currentTarget.style.color = styles.textMuted)}
+                >
+                  <GripVertical size={16} />
+                </div>
+                <span style={{ fontWeight: 600, fontSize: '14px', letterSpacing: '0.01em' }}>Conversation Outline</span>
+              </div>
+              <button
+                onClick={toggleOpen}
                 style={{
-                  cursor: isDragging ? 'grabbing' : 'grab',
-                  padding: '4px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: styles.textMuted,
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  padding: '0 5px',
                   display: 'flex',
                   alignItems: 'center',
-                  color: styles.textMuted,
+                  justifyContent: 'center',
                   transition: 'color 0.2s',
                 }}
-                onMouseOver={(e) => (e.currentTarget.style.color = isLight ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)')}
+                onMouseOver={(e) => (e.currentTarget.style.color = styles.text)}
                 onMouseOut={(e) => (e.currentTarget.style.color = styles.textMuted)}
               >
-                <GripVertical size={16} />
-              </div>
-              <span style={{ fontWeight: 600, fontSize: '14px', letterSpacing: '0.01em' }}>Conversation Outline</span>
+                <X size={16} />
+              </button>
             </div>
-            <button
-              onClick={toggleOpen}
+
+
+
+            <div
+              ref={scrollRef}
+              className="custom-scrollbar"
               style={{
-                background: 'transparent',
-                border: 'none',
-                color: styles.textMuted,
-                fontSize: '20px',
-                cursor: 'pointer',
-                padding: '0 5px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'color 0.2s',
+                maxHeight: '400px',
+                overflowY: 'auto',
+                paddingRight: '5px',
+                scrollbarWidth: 'thin',
+                scrollbarColor: `${styles.scrollbarThumb} transparent`
               }}
-              onMouseOver={(e) => (e.currentTarget.style.color = styles.text)}
-              onMouseOut={(e) => (e.currentTarget.style.color = styles.textMuted)}
             >
-              <X size={16} />
-            </button>
+              {messageEntries.length === 0 ? (
+                <div style={{ fontSize: '13px', color: styles.textMuted, textAlign: 'center', padding: '20px 0' }}>
+                  No messages detected yet.
+                </div>
+              ) : (
+                messageEntries.map(([id, text]) => (
+                  <button
+                    key={id}
+                    onClick={() => scrollToMessage(id)}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      textAlign: 'left',
+                      background: isLight ? 'rgba(0, 0, 0, 0.03)' : 'rgba(255, 255, 255, 0.03)',
+                      border: `1px solid ${isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)'}`,
+                      borderRadius: '6px',
+                      color: isLight ? '#404040' : '#eee',
+                      padding: '8px 10px',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      marginBottom: '6px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      lineHeight: '1.4'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.backgroundColor = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)';
+                      e.currentTarget.style.borderColor = isLight ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)';
+                      e.currentTarget.style.color = isLight ? '#000' : 'white';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.backgroundColor = isLight ? 'rgba(0, 0, 0, 0.03)' : 'rgba(255, 255, 255, 0.03)';
+                      e.currentTarget.style.borderColor = isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)';
+                      e.currentTarget.style.color = isLight ? '#404040' : '#eee';
+                    }}
+                    title={text}
+                  >
+                    {text}
+                  </button>
+                ))
+              )}
+            </div>
+
+            <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-start' }}>
+              <button
+                onClick={handleSummarize}
+                // disabled={!conversationContext}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '6px 12px',
+                  backgroundColor: styles.buttonBg,
+                  color: styles.text,
+                  border: `1px solid ${styles.border}`,
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = styles.buttonBgHover)}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = styles.buttonBg)}
+              >
+                <Sparkles size={14} style={{ color: '#10a37f' }} />
+                Summarize
+              </button>
+            </div>
           </div>
-
-
-
-          <div
-            ref={scrollRef}
-            className="custom-scrollbar"
-            style={{
-              maxHeight: '400px',
-              overflowY: 'auto',
-              paddingRight: '5px',
-              scrollbarWidth: 'thin',
-              scrollbarColor: `${styles.scrollbarThumb} transparent`
-            }}
-          >
-            {messageEntries.length === 0 ? (
-              <div style={{ fontSize: '13px', color: styles.textMuted, textAlign: 'center', padding: '20px 0' }}>
-                No messages detected yet.
-              </div>
-            ) : (
-              messageEntries.map(([id, text]) => (
-                <button
-                  key={id}
-                  onClick={() => scrollToMessage(id)}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    textAlign: 'left',
-                    background: isLight ? 'rgba(0, 0, 0, 0.03)' : 'rgba(255, 255, 255, 0.03)',
-                    border: `1px solid ${isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)'}`,
-                    borderRadius: '6px',
-                    color: isLight ? '#404040' : '#eee',
-                    padding: '8px 10px',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    marginBottom: '6px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    lineHeight: '1.4'
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.backgroundColor = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)';
-                    e.currentTarget.style.borderColor = isLight ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)';
-                    e.currentTarget.style.color = isLight ? '#000' : 'white';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.backgroundColor = isLight ? 'rgba(0, 0, 0, 0.03)' : 'rgba(255, 255, 255, 0.03)';
-                    e.currentTarget.style.borderColor = isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)';
-                    e.currentTarget.style.color = isLight ? '#404040' : '#eee';
-                  }}
-                  title={text}
-                >
-                  {text}
-                </button>
-              ))
-            )}
-          </div>
-
-          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-start' }}>
-            <button
-              onClick={handleSummarize}
-              // disabled={!conversationContext}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '6px 12px',
-                backgroundColor: styles.buttonBg,
-                color: styles.text,
-                border: `1px solid ${styles.border}`,
-                borderRadius: '6px',
-                fontSize: '12px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = styles.buttonBgHover)}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = styles.buttonBg)}
-            >
-              <Sparkles size={14} style={{ color: '#10a37f' }} />
-              Summarize
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 
