@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useChatGPTMonitor } from './hooks/useChatGPTMonitor';
 import { useGrokMonitor } from './hooks/useGrokMonitor';
 import { useDraggable } from './hooks/useDraggable';
@@ -105,6 +105,21 @@ Rules:
   };
 
   const messageEntries = Object.entries(userMessages);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && scrollRef.current) {
+      const scrollContainer = scrollRef.current;
+      // Use a timeout to ensure the DOM has updated and rendered the new items
+      const timeoutId = setTimeout(() => {
+        scrollContainer.scrollTo({
+          top: scrollContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [messageEntries.length, isOpen]);
 
   return (
     <div
@@ -255,6 +270,7 @@ Rules:
 
 
           <div
+            ref={scrollRef}
             className="custom-scrollbar"
             style={{
               maxHeight: '400px',
