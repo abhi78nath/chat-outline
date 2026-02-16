@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Chat Outline",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Organize long ChatGPT and Grok conversations into a clear table of contents with quick navigation and summaries.",
     "icons": {
         "16": "public/icons/icon16.png",
