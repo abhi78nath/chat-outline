@@ -1,93 +1,109 @@
-// This script runs in the page context to intercept fetch calls
+
 (function () {
     const originalFetch = window.fetch;
 
-    // Inclusive pattern for both chatgpt.com and chat.openai.com
-    const apiPattern = /https:\/\/(?:chatgpt\.com|chat\.openai\.com)\/backend-api(?:\/[^\/]*)?\/conversation(?:\/[0-9a-f-]+)?$/;
+    // Existing endpoint: conversation history / response
+    const responseApiPattern =
+        /^https:\/\/(?:chatgpt\.com|chat\.openai\.com)\/backend-api\/conversation(?:s)?\/[0-9a-f-]+(?:\?.*)?$/i;
+
+    // New endpoint: outgoing user message request
+    const requestApiPattern =
+        /^https:\/\/(?:chatgpt\.com|chat\.openai\.com)\/backend-api\/f\/conversation(?:\?.*)?$/i;
 
     window.fetch = async function (...args) {
         const [resource, config] = args;
-        const url = resource instanceof Request ? resource.url : resource;
-        const method = resource instanceof Request ? resource.method : (config?.method || 'GET');
 
-        // Log all intercepted fetch calls for debugging
+        const url = resource instanceof Request
+            ? resource.url
+            : String(resource);
+
+        const method = resource instanceof Request
+            ? (config?.method || resource.method)
+            : (config?.method || 'GET');
+
+        const isRequestApi = requestApiPattern.test(url);
+        const isResponseApi = responseApiPattern.test(url);
+
         console.log('[AI Chat TOC] Intercepted Fetch:', method, url);
 
         let requestData = null;
-        if (resource instanceof Request) {
+
+        // 1. Capture outgoing message payload from /f/conversation
+        if (isRequestApi && method.toUpperCase() === 'POST') {
             try {
-                const clonedRequest = resource.clone();
-                if (clonedRequest.headers.get('content-type')?.includes('application/json')) {
-                    const text = await clonedRequest.text();
-                    try {
-                        requestData = JSON.parse(text);
-                    } catch {
-                        requestData = text;
+                if (resource instanceof Request) {
+                    const clonedRequest = resource.clone();
+                    const body = await clonedRequest.text();
+
+                    if (body) {
+                        requestData = JSON.parse(body);
                     }
-                }
-            } catch (e) {
-                console.error('[AI Chat TOC] Error reading request body:', e);
-            }
-        } else if (config && config.body) {
-            try {
-                if (typeof config.body === 'string') {
-                    try {
-                        requestData = JSON.parse(config.body);
-                    } catch {
-                        requestData = config.body;
-                    }
-                } else {
+                } else if (typeof config?.body === 'string') {
+                    requestData = JSON.parse(config.body);
+                } else if (config?.body) {
                     requestData = config.body;
                 }
-            } catch (e) {
-                requestData = config.body;
-            }
-        }
 
-        const isChatApi = apiPattern.test(url);
-        if (isChatApi) {
-            console.log('[AI Chat TOC] Matched ChatGPT API URL!');
-            if (method === 'POST' && requestData) {
-                console.log('[AI Chat TOC] Sending CHAT_API_REQUEST to Content Script');
-                window.postMessage({
-                    type: 'CHAT_API_REQUEST',
-                    url,
-                    method,
-                    requestData
-                }, '*');
-            }
-        }
+                if (requestData) {
+                    console.log(
+                        '[AI Chat TOC] Captured outgoing user payload:',
+                        requestData
+                    );
 
-        try {
-            const response = await originalFetch.apply(this, args);
-            if (isChatApi) {
-                const clone = response.clone();
-                clone.text().then(body => {
-                    let responseData;
-                    try {
-                        responseData = JSON.parse(body);
-                    } catch {
-                        responseData = body;
-                    }
-                    console.log('[AI Chat TOC] Intercepted Response Body:', responseData);
-                    console.log('[AI Chat TOC] Sending CHAT_API_RESPONSE to Content Script');
-                    // Notify the content script
                     window.postMessage({
-                        type: 'CHAT_API_RESPONSE',
+                        type: 'CHAT_API_REQUEST',
                         url,
                         method,
-                        requestData,
-                        responseData
+                        requestData
                     }, '*');
-                }).catch(err => {
-                    console.error('[AI Chat TOC] Error reading response:', err.message);
-                });
+                }
+            } catch (error) {
+                console.error(
+                    '[AI Chat TOC] Request body extraction failed:',
+                    error
+                );
             }
-
-            return response;
-        } catch (error) {
-            throw error;
         }
+
+        // 2. Execute original request
+        const response = await originalFetch.apply(this, args);
+
+        // 3. Capture response from the existing conversation endpoint
+        if (isResponseApi) {
+            const clone = response.clone();
+
+            clone.text().then(body => {
+                let responseData;
+
+                try {
+                    responseData = JSON.parse(body);
+                } catch {
+                    responseData = body;
+                }
+
+                console.log(
+                    '[AI Chat TOC] Intercepted Response Body:',
+                    responseData
+                );
+
+                window.postMessage({
+                    type: 'CHAT_API_RESPONSE',
+                    url,
+                    method,
+                    requestData,
+                    responseData
+                }, '*');
+
+            }).catch(err => {
+                console.error(
+                    '[AI Chat TOC] Error reading response:',
+                    err.message
+                );
+            });
+        }
+
+        return response;
     };
+
     console.log('[AI Chat TOC] Fetch Interceptor Injected Successfully');
 })();

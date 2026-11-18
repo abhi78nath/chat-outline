@@ -106,6 +106,7 @@ Rules:
 
   const messageEntries = Object.entries(userMessages);
   const scrollRef = useRef<HTMLDivElement>(null);
+  console.log(messageEntries, userMessages, 'messageEntries')
 
   useEffect(() => {
     if (isOpen && scrollRef.current) {
